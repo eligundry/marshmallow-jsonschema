@@ -8,10 +8,14 @@
 
 #### Why would I want my schema translated to JSON?
 
-What are the use cases for this? Let's say you have a
-marshmallow schema in python, but you want to render your
-schema as a form in another system (for example: a web browser
-or mobile device).
+What are the use cases for this? Let's say you have a marshmallow schema in
+python, but you want to render your schema as a form in another system (for
+example: a web browser or mobile device).
+
+Or maybe you want to incorporate your existing Marshmallow schemas into
+a [RAML](http://raml.org/) document for living documentation. Never again will
+your API documention fall out of date because you forgot to update it. It'll
+just work!
 
 #### Installation
 
@@ -75,7 +79,7 @@ class AthleteSchema(Schema):
     user_schema = fields.Nested(JSONSchema)
     name = fields.String()
 
-    
+
 athlete = Athlete()
 athlete_schema = AthleteSchema()
 
@@ -169,7 +173,7 @@ class Colour(fields.Field):
         r = hex(r)[2:]
         g = hex(g)[2:]
         b = hex(b)[2:]
-        return '#' + r + g + b 
+        return '#' + r + g + b
 
 class Gender(fields.String):
     def _jsonschema_type_mapping(self):
