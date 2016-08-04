@@ -175,3 +175,23 @@ def test_unknown_typed_field():
     json_schema = JSONSchema()
     dumped = json_schema.dump(schema).data
     assert dumped['properties']['favourite_colour'] == {'type': 'string'}
+
+def test_field_metadata_custom_type():
+    class CustomStringField(fields.String):
+        def _jsonschema_type_mapping(self):
+            return {
+                'type': 'string',
+            }
+
+    class UserSchema(Schema):
+        name = fields.String(metadata={
+            'description': "First & Last Name",
+            'title': 'Name',
+        })
+
+    schema = UserSchema()
+    json_schema = JSONSchema()
+    dumped = json_schema.dump(schema).data
+
+    assert dumped['properties']['name']['title'] == 'Name'
+    assert dumped['properties']['name']['description'] == "First & Last Name"
