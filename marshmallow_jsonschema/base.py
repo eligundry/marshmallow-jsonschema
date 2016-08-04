@@ -107,6 +107,9 @@ class JSONSchema(Schema):
                         schema, field, validator, obj
                     )
 
+            # Apply any passed in metadata on the field
+            schema = self.apply_metadata(field, schema)
+
             properties[field.name] = schema
 
         return properties
@@ -132,32 +135,48 @@ class JSONSchema(Schema):
         if field.default is not missing:
             json_schema['default'] = field.default
 
-        if field.metadata.get('metadata', {}).get('description'):
-            json_schema['description'] = (
-                field.metadata['metadata'].get('description')
-            )
-
-        if field.metadata.get('metadata', {}).get('title'):
-            json_schema['title'] = field.metadata['metadata'].get('title')
-
         return json_schema
 
     @classmethod
     def _from_nested_schema(cls, field):
         schema = cls().dump(field.nested()).data
 
-        if field.metadata.get('metadata', {}).get('description'):
-            schema['description'] = (
-                field.metadata['metadata'].get('description')
-            )
-
-        if field.metadata.get('metadata', {}).get('title'):
-            schema['title'] = field.metadata['metadata'].get('title')
-
         if field.many:
             schema = {
                 'type': ["array"] if field.required else ['array', 'null'],
                 'items': schema,
             }
+
+        return schema
+
+    @classmethod
+    def apply_metadata(cls, field, schema):
+        """This method allows for setting of custom metadata to a field's
+        generated schema.
+
+        Args:
+            field (marshmallow.fields.Field): The field instance that the
+                schema is being derived from.
+            schema (dict): The partially defined schema.
+
+        Returns:
+            dict: The schema with the metadata applied to it.
+        """
+        # There are two ways to pass in metadata for this library. One is
+        # through the extra key keyword args to the field and the other is
+        # through a keyword arg named `metadata` which is a dict. Let's support
+        # both ways for flexibility!
+        metadata = field.metadata.get('metadata', {})
+
+        # Attempt to capture the values from both methods of metadata
+        title = field.metadata.get('title', metadata.get('title'))
+        description = field.metadata.get('description',
+                                         metadata.get('description'))
+
+        if title:
+            schema['title'] = title
+
+        if description:
+            schema['description'] = description
 
         return schema
