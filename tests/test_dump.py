@@ -56,6 +56,24 @@ def test_nested_descriptions():
     assert nested_dmp['description'] == 'Nested 1'
     assert nested_dmp['title'] == 'Title1'
 
+def test_nested_descriptions_by_kwarg():
+    class TestSchema(Schema):
+        myfield = fields.String(description='Brown Cow')
+        yourfield = fields.Integer(required=True)
+    class TestNestedSchema(Schema):
+        nested = fields.Nested(
+            TestSchema, description='Nested 1', title='Title1')
+        yourfield_nested = fields.Integer(required=True)
+
+    schema = TestNestedSchema()
+    json_schema = JSONSchema()
+    dumped = json_schema.dump(schema).data
+    _validate_schema(dumped)
+    nested_dmp = dumped['properties']['nested']
+    assert nested_dmp['properties']['myfield']['description'] == 'Brown Cow'
+    assert nested_dmp['description'] == 'Nested 1'
+    assert nested_dmp['title'] == 'Title1'
+
 
 def test_one_of_validator():
     schema = UserSchema()
