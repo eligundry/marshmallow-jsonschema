@@ -112,7 +112,7 @@ class JSONSchema(Schema):
 
             properties[field.name] = schema
 
-        return properties
+        return self.json_schema_callback(properties)
 
     def get_required(self, obj):
         required = []
@@ -122,6 +122,28 @@ class JSONSchema(Schema):
                 required.append(field.name)
 
         return required
+
+    def json_schema_callback(self, properties):
+        """Callback for more complex JSON schema manipulation.
+
+        Because this library attempts to generate schemas only from Marshmallow
+        field attributes, validation logic defined in functions like
+        ``Marshmallow.validates_schema`` or ``Marshmallow.validates`` can't be
+        covered. This method will pass in the generated schema in dictionary
+        form so properties can be added and removed at the developer's
+        discretion.
+
+        Since this validation logic is up to the developer to define, this
+        method by itself just returns what it's passed.
+
+        Args:
+            properties (dict): The generated schema from
+                ``JSONSchema.get_properties``.
+
+        Returns:
+            dict: The manipulated schema.
+        """
+        return properties
 
     @classmethod
     def _from_python_type(cls, field, pytype):
