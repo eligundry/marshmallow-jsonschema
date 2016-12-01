@@ -80,6 +80,8 @@ class JSONSchema(Schema):
     properties = fields.Method('get_properties')
     type = fields.Constant('object')
     required = fields.Method('get_required')
+    schema = fields.Constant("http://json-schema.org/draft-04/schema#",
+                             dump_to="$schema")
 
     def get_properties(self, obj):
         mapping = {v: k for k, v in obj.TYPE_MAPPING.items()}
